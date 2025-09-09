@@ -81,33 +81,41 @@ public class FacadeApplication {
     }
 
     private static void callBackend(String method, String request) throws IOException {
+        String json = "{}";
         String urlRequestEndpoint = REQUEST_BACKEND_URL + request;
         URL obj = new URL(urlRequestEndpoint);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestMethod(method);
         con.setRequestProperty("User-Agent", USER_AGENT);
-
         int responseCode = con.getResponseCode();
-        System.out.println("GET Response Code :: " + responseCode);
 
         if (responseCode == HttpURLConnection.HTTP_OK) {
             BufferedReader in = new BufferedReader(new InputStreamReader(
                     con.getInputStream()));
             String inputLine;
-            StringBuffer response = new StringBuffer();
+            StringBuilder response = new StringBuilder();
 
             while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);
             }
             in.close();
 
-            System.out.println(response.toString());
+            json = response.toString();
         } else {
             System.out.println("GET request not worked");
         }
         System.out.println("GET DONE");
-    }
 
+        byte[] jsonBytes = json.getBytes();
+        out.write("HTTP/1.1 200 OK\r\n".getBytes());
+        out.write("Content-Type: application/json\r\n".getBytes());
+        out.write(("Content-Length: " + jsonBytes.length + "\r\n").getBytes());
+        out.write("Connection: close\r\n".getBytes());
+        out.write("\r\n".getBytes());
+        System.out.println("JSON generado: " + json);
+        out.write(jsonBytes);
+        out.flush();
+    }
 
     private static void serveStaticFile(String path) {
         String basePath = "page";
