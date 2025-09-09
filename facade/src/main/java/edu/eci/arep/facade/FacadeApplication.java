@@ -17,7 +17,6 @@ public class FacadeApplication {
 		con.setRequestMethod("GET");
 		con.setRequestProperty("User-Agent", USER_AGENT);
 
-		//The following invocation perform the connection implicitly before getting the code
 		int responseCode = con.getResponseCode();
 		System.out.println("GET Response Code :: " + responseCode);
 
