@@ -43,7 +43,7 @@ public class BackendApplication {
             throw new RuntimeException(e);
         }
 
-		String inputLine, outputLine, httpRequest = null;
+		String inputLine, httpRequest = null;
 		boolean firstLine = true;
 		while ((inputLine = in.readLine()) != null) {
 			if (firstLine){
@@ -59,7 +59,7 @@ public class BackendApplication {
 
 	}
 
-	private static void handleEndpoints(String httpRequest) throws URISyntaxException, IOException {
+	private static void handleEndpoints(String httpRequest) throws IOException {
 		String json = "{ }";
 		String method = httpRequest.split(" ")[0];
 		URI requestUri = null;
@@ -70,7 +70,6 @@ public class BackendApplication {
 		}
         String request = requestUri.getPath();
 		if (method.equals("GET")){
-			System.out.println(method + ": " + request);
 			if (request.startsWith("/setkv")){
 				String key = requestUri.getQuery().split("&")[0].split("=")[1];
 				String value = requestUri.getQuery().split("&")[1].split("=")[1];
@@ -102,8 +101,15 @@ public class BackendApplication {
 
 	private static String getKV(String key){
 		String value = repository.get(key);
-		List<String> keys = new ArrayList<>(List.of("key", "value"));
-		List<String> values = new ArrayList<>(List.of(key, value));
+		List<String> keys;
+		List<String> values;
+		if (value == null){
+			keys = new ArrayList<>(List.of("error", "key"));
+			values = new ArrayList<>(List.of("key_not_found", key));
+		} else {
+			keys = new ArrayList<>(List.of("key", "value"));
+			values = new ArrayList<>(List.of(key, value));
+		}
 		return jsonBuilder(keys, values);
 	}
 
